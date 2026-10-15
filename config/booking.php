@@ -18,4 +18,21 @@ return [
     */
     'whatsapp_number' => env('BOOKING_WHATSAPP', '584141234567'),
 
+    /*
+    | Prefijo del código de reserva (ej. AUR-8492).
+    */
+    'code_prefix' => env('BOOKING_CODE_PREFIX', 'AUR'),
+
+    /*
+    | Bloques de 1 hora que ofrece el negocio cada día hábil (formato HH:MM, 24 horas).
+    */
+    'slots' => ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'],
+
+    /*
+    | Cuántos días hábiles se muestran en el calendario y días de la semana cerrados
+    | (0 = domingo, 6 = sábado).
+    */
+    'business_days_ahead' => 7,
+    'closed_weekdays' => [0],
+
 ];

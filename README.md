@@ -17,8 +17,6 @@ el cliente elige servicio, fecha y hora libre, deja su nombre y WhatsApp, y la c
 
 ---
 
-> 🚧 **En construcción.** Este repositorio contiene la base del proyecto; las secciones listadas abajo se están desarrollando.
-
 ## ✨ ¿Qué es?
 
 Una landing elegante pensada para negocios que hoy agendan por WhatsApp o llamada. Muestra los servicios, los resultados reales con un comparador "antes y después" y un **calendario con disponibilidad real** que bloquea la hora en cuanto alguien la reserva.
@@ -63,7 +61,7 @@ php artisan key:generate
 
 # 3. Base de datos
 touch database/database.sqlite        # en Windows: type nul > database\database.sqlite
-php artisan migrate --seed
+php artisan migrate --seed            # 6 servicios, 3 galerías y 3 citas ocupadas hoy
 
 # 4. Levanta el proyecto
 composer run dev
@@ -82,18 +80,39 @@ Variables propias del proyecto en `.env`:
 | `BOOKING_DEMO_MODE` | Activa el "Modo demo admin". **Déjalo en `false` en producción.** | `false` |
 | `BOOKING_BUSINESS_NAME` | Nombre comercial que aparece en la página y el ticket. | `Aura Estética & Spa` |
 | `BOOKING_WHATSAPP` | WhatsApp que recibe los comprobantes, con código de país y sin `+`. | `584141234567` (ejemplo) |
+| `BOOKING_CODE_PREFIX` | Prefijo del código de reserva (`AUR-8492`). | `AUR` |
+| `APP_TIMEZONE` | Zona horaria con la que se calculan "hoy" y las horas pasadas. | `America/Caracas` |
+
+Los bloques de hora, los días que se muestran y los días cerrados se ajustan en `config/booking.php`.
+
+## 🧭 Cómo funciona la reserva
+
+```
+Calendario (React) ──GET /availability?date=──▶ AvailabilityController
+                                                 └─ horas libres según las citas no canceladas
+Formulario ────────POST /appointments────────▶ AppointmentController
+                                                 ├─ valida datos (FormRequest)
+                                                 ├─ DB::transaction + lockForUpdate() sobre el bloque
+                                                 ├─ rechaza horas ocupadas, pasadas o fuera de horario (409)
+                                                 └─ devuelve el ticket y la URL de WhatsApp
+```
+
+Las citas **canceladas liberan el cupo**. El límite es de 10 reservas por minuto por IP.
 
 ## 🗂 Estructura
 
 ```
 app/
-├── Http/Controllers/
-│   └── LandingController.php        # página principal (Inertia)
-└── Models/
-config/booking.php                   # configuración propia del negocio
+├── Http/Controllers/   # Landing, Availability, Appointment, Demo
+├── Http/Requests/      # validaciones con mensajes en español
+├── Models/             # Service, Appointment, BeforeAfterGallery
+└── Services/BookingService.php   # días hábiles, disponibilidad y creación segura de citas
+config/booking.php      # configuración propia del negocio
 resources/js/
+├── Components/    # Navbar, Hero, ServicesSection, BeforeAfterSection, BookingEngine, TicketModal, AdminDemoDrawer
 ├── Pages/         # Landing.tsx
-└── app.tsx        # punto de entrada de React + Inertia
+├── Types/         # interfaces TypeScript
+└── lib/           # format.ts, http.ts, beforeAfterSlider.ts
 ```
 
 ## 🧪 Pruebas
@@ -102,15 +121,25 @@ resources/js/
 php artisan test
 ```
 
+Cubren: disponibilidad, reserva con ticket, doble reserva rechazada (409), cupo liberado al cancelar, validaciones y el modo demo activado/desactivado.
+
+## 🖼 Imágenes y datos de ejemplo
+
+- Los servicios y las fotos "antes y después" son **ilustraciones SVG** locales (`public/images/`). Reemplázalas por fotos reales en `.webp` y actualiza el seeder.
+- Los servicios, precios y horarios del seeder son de ejemplo.
+
 ## 🗺 Roadmap
 
 - [x] Base del proyecto (Laravel + Inertia + React + Tailwind)
-- [ ] Migraciones y seeders de servicios y citas
-- [ ] Navbar, hero y catálogo de servicios con filtro
-- [ ] Comparador "antes y después"
-- [ ] Motor de agenda con disponibilidad real
-- [ ] Ticket digital y comprobante por WhatsApp
-- [ ] Modo demo admin
+- [x] Migraciones y seeders de servicios, galerías y citas
+- [x] Navbar, hero con reserva rápida y catálogo con filtro
+- [x] Comparador "antes y después" (mouse, touch y teclado)
+- [x] Motor de agenda con disponibilidad real
+- [x] Ticket digital y comprobante por WhatsApp
+- [x] Modo demo admin
+- [ ] Fotos reales optimizadas en `.webp` y auditoría Lighthouse 95+
+- [ ] Panel de administración con login
+- [ ] Recordatorios automáticos por WhatsApp
 
 ## 👥 Sobre Kinetia Code
 
