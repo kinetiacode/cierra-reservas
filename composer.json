@@ -3,11 +3,10 @@
     "name": "kinetiacode/cierra-reservas",
     "type": "project",
     "description": "Landing de alta conversión con motor de reservas en tiempo real para estética, odontología y barbería.",
-    "keywords": ["laravel", "inertia", "react", "reservas", "booking", "whatsapp"],
+    "keywords": ["laravel", "blade", "typescript", "tailwindcss", "reservas", "booking", "whatsapp"],
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "inertiajs/inertia-laravel": "^3.5",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0"
     },

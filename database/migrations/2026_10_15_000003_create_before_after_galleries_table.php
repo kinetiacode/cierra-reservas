@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('before_after_galleries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('service_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title');
             $table->string('treatment_name');
             $table->string('before_image_url');

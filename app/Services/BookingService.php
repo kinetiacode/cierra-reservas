@@ -15,7 +15,8 @@ use Illuminate\Support\Str;
 class BookingService
 {
     /**
-     * Próximos días hábiles (incluye hoy) para mostrar en el calendario.
+     * Próximos días hábiles para mostrar en el calendario. Hoy solo se incluye
+     * si todavía queda al menos un bloque por delante.
      *
      * @return array<int, array{date: string, weekday: string, day: int, month: string}>
      */
@@ -25,7 +26,10 @@ class BookingService
         $cursor = CarbonImmutable::today();
 
         while (count($days) < config('booking.business_days_ahead')) {
-            if (! in_array($cursor->dayOfWeek, config('booking.closed_weekdays'), true)) {
+            $is_open = ! in_array($cursor->dayOfWeek, config('booking.closed_weekdays'), true);
+            $has_time_left = ! $cursor->isToday() || $this->hasFutureSlot($cursor->toDateString());
+
+            if ($is_open && $has_time_left) {
                 $days[] = [
                     'date' => $cursor->toDateString(),
                     'weekday' => ucfirst($cursor->locale('es')->isoFormat('ddd')),
@@ -118,6 +122,20 @@ class BookingService
             ."A nombre de: {$appointment->client_name}";
 
         return 'https://wa.me/'.config('booking.whatsapp_number').'?text='.rawurlencode($message);
+    }
+
+    /**
+     * Indica si a la fecha todavía le queda algún bloque por delante.
+     */
+    private function hasFutureSlot(string $date): bool
+    {
+        foreach (config('booking.slots') as $slot) {
+            if (! $this->isPast($date, $slot)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

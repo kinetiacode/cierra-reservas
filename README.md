@@ -6,8 +6,7 @@
 el cliente elige servicio, fecha y hora libre, deja su nombre y WhatsApp, y la cita queda agendada sin recepcionista.
 
 ![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
-![Inertia](https://img.shields.io/badge/Inertia.js-3-9553E9?logo=inertia&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Blade](https://img.shields.io/badge/Blade-templates-FF2D20?logo=laravel&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?logo=php&logoColor=white)
@@ -30,7 +29,8 @@ Funciona como **proyecto de portafolio** (incluirá un "Modo demo admin" para ve
 | ⚡ **Reserva rápida desde el hero** | Widget flotante: servicio → fecha → horas disponibles. |
 | 💆 **Catálogo con filtro instantáneo** | Pestañas por categoría; cada tarjeta muestra duración y precio. |
 | 🎯 **Selección con scroll suave** | "Elegir este servicio" baja al calendario con el servicio ya cargado. |
-| 🖼 **Comparador antes / después** | Slider arrastrable con mouse o dedo, hecho en TypeScript. |
+| 🖼 **Comparador antes / después** | Slider arrastrable con mouse, dedo o teclado, hecho en TypeScript; invita a arrastrar con un vaivén inicial y cada tratamiento se reserva con un clic. |
+| 🌗 **Modo claro y oscuro** | Botón en el header; recuerda la elección y respeta el tema del sistema la primera vez, sin parpadeo al cargar. |
 | 🗓 **Motor de agenda en tiempo real** | Horas ocupadas deshabilitadas según la base de datos. |
 | 🎫 **Ticket digital** | Código de reserva (`AUR-XXXX`) y comprobante por WhatsApp al local. |
 | 🛠 **Modo demo admin** | Panel flotante para ver y cambiar el estado de las citas en vivo. |
@@ -39,8 +39,8 @@ Funciona como **proyecto de portafolio** (incluirá un "Modo demo admin" para ve
 ## 🧱 Stack
 
 - **Backend:** Laravel 13 · PHP 8.3+ · Eloquent · SQLite (por defecto, MySQL compatible)
-- **Puente:** Inertia.js 3
-- **Frontend:** React 19 · TypeScript (strict) · Tailwind CSS 4 · Vite 8
+- **Vistas:** Blade (la página la renderiza el servidor)
+- **Frontend:** TypeScript (strict, sin frameworks) · Tailwind CSS 4 · Vite 8
 - **Tests:** PHPUnit (feature tests)
 - **Gestor de paquetes:** pnpm
 
@@ -88,7 +88,7 @@ Los bloques de hora, los días que se muestran y los días cerrados se ajustan e
 ## 🧭 Cómo funciona la reserva
 
 ```
-Calendario (React) ──GET /availability?date=──▶ AvailabilityController
+Calendario (TypeScript) ─GET /availability?date=─▶ AvailabilityController
                                                  └─ horas libres según las citas no canceladas
 Formulario ────────POST /appointments────────▶ AppointmentController
                                                  ├─ valida datos (FormRequest)
@@ -108,11 +108,15 @@ app/
 ├── Models/             # Service, Appointment, BeforeAfterGallery
 └── Services/BookingService.php   # días hábiles, disponibilidad y creación segura de citas
 config/booking.php      # configuración propia del negocio
+resources/views/
+├── layouts/app.blade.php   # <head>, SEO y script anti-parpadeo del tema
+├── landing.blade.php
+└── landing/                # navbar, hero, services, results, booking, footer, ticket-modal, admin-drawer
 resources/js/
-├── Components/    # Navbar, Hero, ServicesSection, BeforeAfterSection, BookingEngine, TicketModal, AdminDemoDrawer
-├── Pages/         # Landing.tsx
-├── Types/         # interfaces TypeScript
-└── lib/           # format.ts, http.ts, beforeAfterSlider.ts
+├── app.ts                  # punto de entrada: conecta los módulos
+├── modules/                # navbar, hero, services, results, booking, ticketModal, adminDrawer
+├── lib/                    # bookingStore, beforeAfterSlider, theme, http, format, dom
+└── types/                  # interfaces TypeScript
 ```
 
 ## 🧪 Pruebas
@@ -130,9 +134,10 @@ Cubren: disponibilidad, reserva con ticket, doble reserva rechazada (409), cupo 
 
 ## 🗺 Roadmap
 
-- [x] Base del proyecto (Laravel + Inertia + React + Tailwind)
+- [x] Base del proyecto (Laravel + Blade + TypeScript + Tailwind)
 - [x] Migraciones y seeders de servicios, galerías y citas
 - [x] Navbar, hero con reserva rápida y catálogo con filtro
+- [x] Modo claro y oscuro
 - [x] Comparador "antes y después" (mouse, touch y teclado)
 - [x] Motor de agenda con disponibilidad real
 - [x] Ticket digital y comprobante por WhatsApp

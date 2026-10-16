@@ -45,14 +45,16 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // [título, tratamiento, slug de imágenes, índice del servicio que se reserva desde la galería]
         $galleries = [
-            ['Piel luminosa en una sesión', 'Limpieza Facial Profunda', 'facial'],
-            ['Hidratación que se nota', 'Hidratación Facial Premium', 'hidratacion'],
-            ['Piel suave y sin vello', 'Depilación Láser', 'laser'],
+            ['Poros limpios y piel luminosa desde la primera sesión', 'Limpieza facial', 'facial', 0],
+            ['Hidratación profunda: de piel opaca a piel jugosa', 'Hidratación', 'hidratacion', 1],
+            ['Piel suave y uniforme, sin vello', 'Depilación láser', 'laser', 2],
         ];
 
-        foreach ($galleries as [$title, $treatment, $slug]) {
+        foreach ($galleries as [$title, $treatment, $slug, $service_index]) {
             BeforeAfterGallery::create([
+                'service_id' => $services[$service_index]->id,
                 'title' => $title,
                 'treatment_name' => $treatment,
                 'before_image_url' => "/images/results/{$slug}-antes.svg",

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class LandingTest extends TestCase
@@ -16,18 +15,31 @@ class LandingTest extends TestCase
         $this->withoutVite();
 
         Service::create([
-            'name' => 'Masaje', 'category' => 'Spa', 'description' => 'x',
+            'name' => 'Masaje Visible', 'category' => 'Spa', 'description' => 'x',
             'price_usd' => 40, 'duration_minutes' => 60, 'image_url' => 'x.svg',
         ]);
         Service::create([
-            'name' => 'Oculto', 'category' => 'Spa', 'description' => 'x',
+            'name' => 'Servicio Oculto', 'category' => 'Spa', 'description' => 'x',
             'price_usd' => 40, 'duration_minutes' => 60, 'image_url' => 'x.svg', 'is_active' => false,
         ]);
 
-        $this->get('/')->assertInertia(fn (Assert $page) => $page
-            ->component('Landing')
-            ->where('businessName', config('booking.business_name'))
-            ->has('services', 1)
-            ->has('days', config('booking.business_days_ahead')));
+        $response = $this->get('/')->assertOk();
+
+        $response->assertViewIs('landing')
+            ->assertSee(config('booking.business_name'))
+            ->assertSee('Masaje Visible')
+            ->assertDontSee('Servicio Oculto')
+            ->assertViewHas('days', fn (array $days) => count($days) === config('booking.business_days_ahead'));
+    }
+
+    public function test_demo_drawer_only_renders_when_demo_mode_is_on(): void
+    {
+        $this->withoutVite();
+
+        config(['booking.demo_mode' => false]);
+        $this->get('/')->assertDontSee('admin-open', false);
+
+        config(['booking.demo_mode' => true]);
+        $this->get('/')->assertSee('admin-open', false);
     }
 }

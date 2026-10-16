@@ -2,15 +2,73 @@
 
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
-@source '../**/*.tsx';
+@source '../**/*.ts';
+
+/* El modo oscuro se activa con la clase "dark" en <html> (ver lib/theme.ts), no solo con el sistema. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Playfair Display', 'Inter', ui-serif, Georgia, serif;
 }
 
 @layer base {
     button:not(:disabled) {
         cursor: pointer;
+    }
+
+    /* Los selectores y calendarios nativos se dibujan oscuros cuando el tema es oscuro. */
+    :root {
+        color-scheme: light;
+    }
+
+    :root.dark {
+        color-scheme: dark;
+    }
+}
+
+/*
+ * Componentes reutilizables. Los estados (seleccionado, presionado) se pintan con los atributos
+ * ARIA que pone TypeScript (aria-selected / aria-pressed), así el JS nunca manipula clases de color.
+ */
+@layer components {
+    .surface {
+        @apply rounded-2xl border border-stone-200/80 bg-white transition-colors dark:border-stone-800 dark:bg-stone-900;
+    }
+
+    .field {
+        @apply w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/30;
+    }
+
+    .btn-primary {
+        @apply rounded-full bg-emerald-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-white dark:bg-emerald-500 dark:text-stone-950 dark:hover:bg-emerald-400 dark:disabled:bg-stone-700 dark:disabled:text-stone-500;
+    }
+
+    .chip {
+        @apply rounded-full border border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-600 transition hover:border-emerald-700 aria-selected:border-emerald-900 aria-selected:bg-emerald-900 aria-selected:text-white dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:border-emerald-500 dark:aria-selected:border-emerald-500 dark:aria-selected:bg-emerald-500 dark:aria-selected:text-stone-950;
+    }
+
+    .day-chip {
+        @apply min-w-[4.5rem] shrink-0 rounded-xl border border-stone-300 bg-white px-3 py-2 text-center transition hover:border-emerald-700 aria-pressed:border-emerald-900 aria-pressed:bg-emerald-900 aria-pressed:text-white dark:border-stone-700 dark:bg-stone-800 dark:hover:border-emerald-500 dark:aria-pressed:border-emerald-500 dark:aria-pressed:bg-emerald-500 dark:aria-pressed:text-stone-950;
+    }
+
+    .slot {
+        @apply rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 transition hover:border-emerald-700 aria-pressed:border-emerald-900 aria-pressed:bg-emerald-900 aria-pressed:font-semibold aria-pressed:text-white disabled:cursor-not-allowed disabled:border-stone-100 disabled:bg-stone-100 disabled:text-stone-400 disabled:line-through disabled:hover:border-stone-100 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:hover:border-emerald-500 dark:aria-pressed:border-emerald-500 dark:aria-pressed:bg-emerald-500 dark:aria-pressed:text-stone-950 dark:disabled:border-stone-800 dark:disabled:bg-stone-900 dark:disabled:text-stone-600 dark:disabled:hover:border-stone-800;
+    }
+
+    .tab-card {
+        @apply flex min-w-[15rem] shrink-0 items-center gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 pr-4 text-left transition hover:border-emerald-600 aria-selected:border-emerald-700 aria-selected:bg-emerald-50 aria-selected:ring-2 aria-selected:ring-emerald-700/15 lg:min-w-0 dark:border-stone-700 dark:bg-stone-800/60 dark:hover:border-emerald-500 dark:aria-selected:border-emerald-500 dark:aria-selected:bg-emerald-500/10 dark:aria-selected:ring-emerald-500/20;
+    }
+
+    .eyebrow {
+        @apply inline-block rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300;
+    }
+
+    .muted {
+        @apply text-stone-500 dark:text-stone-400;
+    }
+
+    .accent {
+        @apply text-emerald-900 dark:text-emerald-400;
     }
 }
